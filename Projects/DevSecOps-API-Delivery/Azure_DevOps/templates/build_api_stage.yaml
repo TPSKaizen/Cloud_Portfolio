@@ -1,0 +1,73 @@
+parameters:
+  - name: sonarqubeProjectKey
+    type: string
+  - name: sonarqubeProjectName
+    type: string
+  - name: sonarqubeConnectionName
+    type: string
+  - name: apiName
+    type: string
+  - name: environmentName
+    type: string
+    values:
+    - dev
+    - prod
+
+stages:
+- stage: APIBuildStage
+  displayName: 'Build API'
+  jobs: 
+  - deployment: APIBuild
+    displayName: 'Build ${{ parameters.apiName }}'
+    environment: 
+        name: ${{ parameters.environmentName }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: Bash@3
+            displayName: 'Set Maven ENVs'
+            inputs:
+              targetType: 'inline'
+              script: 'echo "##vso[task.setvariable variable=M2_HOME]/opt/maven" && echo "##vso[task.setvariable variable=MAVEN_HOME]/opt/maven"'
+          - task: SonarQubePrepare@7
+            inputs:
+              scannerMode: 'Other'
+              SonarQube: ${{ parameters.sonarqubeConnectionName }}
+              extraProperties: |
+                # Additional properties that will be passed to the scanner,
+                # Put one key=value per line, example:
+                # sonar.exclusions=**/*.bin
+                # sonar.projectKey=${{ parameters.sonarqubeProjectKey }}
+                sonar.projectName=${{ parameters.sonarqubeProjectName }}
+                sonar.coverage.jacoco.xmlReportPaths=$(Build.SourcesDirectory)/target/site/jacoco/jacoco.xml
+          
+          - task: Maven@4
+            displayName: 'Build API'
+            inputs:
+              options: '-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+              mavenPomFile: 'pom.xml'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              codeCoverageToolOption: 'JaCoCo'
+              mavenVersionOption: 'Path'
+              mavenDirectory: '/opt/maven'
+              mavenSetM2Home: true
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: true
+              isJacocoCoverageReportXML: true
+              sqMavenPluginVersionChoice: 'latest'
+
+          - bash: |
+              echo "##vso[task.setvariable variable=myVar;]$(basename $(find . -type f -name "*.jar"))"
+            displayName: 'Get Jar Name'
+
+          - publish: $(System.DefaultWorkingDirectory)/target/$(myVar)
+            artifact: jarfile
+
+          - task: SonarQubePublish@7
+            inputs:
+              pollingTimeoutSec: '300'
