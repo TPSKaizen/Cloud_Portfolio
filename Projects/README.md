@@ -44,6 +44,8 @@ Additionally, the importance good networking skills was made very clear. This le
 
 As it relates to the CI/CD processes, templating code has been extremely useful. This led to multiple APIs being able to utilize the same templates for the building, scanning and pushing of code/images.
 
+Finally, configuring SonarQube and Trivy was also fruitful. Witnessing the scans and having to remediate code was rewarding and also insightful as to how to pinpoint critical vulnerabilities and execute remediation.
+
 ## Diagram
 ![alt text](DevSecOps-API-Delivery/DevSecOps-API-Delivery-Terraform-Infra.png)
 
