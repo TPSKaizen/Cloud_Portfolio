@@ -18,7 +18,7 @@ Additionally, tearing down this VM and recreating it was a hassle.
 Terraform helps address these issues by allowing me to easily provision and deprovision resources, while ensuring the same state through idempotency.
 
 ## Diagram
-![alt text](IAC_Linux_Build_Agent/TerraformBuildAgent.drawio-1.png)
+![alt text](Projects/IAC_Linux_Build_Agent/TerraformBuildAgent.drawio-1.png)
 
 ## Infra Components
 1. Resource Group - Houses all Azure Infrastucture
@@ -47,7 +47,7 @@ As it relates to the CI/CD processes, templating code has been extremely useful.
 Finally, configuring SonarQube and Trivy was also fruitful. Witnessing the scans and having to remediate code was rewarding and also insightful as to how to pinpoint critical vulnerabilities and execute remediation.
 
 ## Diagram
-![alt text](DevSecOps-API-Delivery/DevSecOps-API-Delivery-Terraform-Infra.png)
+![alt text](Projects/DevSecOps-API-Delivery/DevSecOps-API-Delivery-Terraform-Infra.png)
 
 ## Infra Components
 1. Resource Group - Logically grouping Infrastructure Services
@@ -65,7 +65,7 @@ domain names within a virtual network without the need for a custom DNS solution
 
 
 ## Diagram
-![alt text](DevSecOps-API-Delivery/DevSecOps-API-Delivery-AZDO-Workflow.png)
+![alt text](Projects/DevSecOps-API-Delivery/DevSecOps-API-Delivery-AZDO-Workflow.png)
 
 ## Azure DevOps Components
 
