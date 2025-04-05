@@ -1,0 +1,41 @@
+parameters:
+  - name: environmentName
+    type: string
+    values:
+    - dev
+    - prod
+  - name: apiName
+    type: string
+  - name: repositoryName
+    type: string
+  - name: acrName
+    type: string
+
+stages:
+- stage: DockerBuildAndPushStage
+  displayName: 'Containerize and Push API to ACR'
+  jobs: 
+  - deployment: DockerBuildAndPush
+    displayName: 'Containerize and Push ${{ parameters.apiName }}'
+    environment: 
+        name: ${{ parameters.environmentName }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: jarfile
+          - bash: |
+              sudo az login --identity
+              sudo az acr login --name ${{ parameters.acrName }}
+              sudo docker build --tag ${{ parameters.acrName}}.azurecr.io/${{ parameters.apiName }}:$(Build.BuildId) .
+            displayName: 'Docker Build API Container'
+
+          - script: |
+              sudo /usr/local/bin/trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ parameters.acrName }}.azurecr.io/${{ parameters.apiName }}:$(Build.BuildId)
+            displayName: 'Trivy Scanning'
+
+          - bash: |
+              sudo docker push ${{ parameters.acrName}}.azurecr.io/${{ parameters.apiName }}:$(Build.BuildId)
+            displayName: 'Push to ACR'
+            

@@ -1,0 +1,29 @@
+trigger: none # No CI Triggers
+
+resources:
+  repositories:
+  - repository: templates
+    type: git
+    name: templates
+
+variables:
+- group: general
+- group: apiRelated
+
+pool: $(selfhostedpool)
+
+stages:
+- template: build_api_stage.yaml@templates
+  parameters:
+      apiName: 'consumer3'
+      environmentName: 'dev'
+      sonarqubeProjectKey: $(consumer3SQKey)
+      sonarqubeProjectName: $(consumer3SQName)
+      sonarqubeConnectionName: $(sqserviceconnection)
+
+- template: docker_build_scan_push_stage.yaml@templates
+  parameters:
+      apiName: 'consumer3'
+      environmentName: 'dev'
+      repositoryName: 'consumer3'
+      acrName: $(acrName)
